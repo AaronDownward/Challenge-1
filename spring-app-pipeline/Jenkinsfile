@@ -30,7 +30,7 @@ pipeline {
             steps {
                 dir("simple-app") {
                     withSonarQubeEnv("SonarCloud") {
-                        sh "mvn verify sonar:sonar"
+                        sh "mvn verify sonar:sonar -Dsonar.scanner.force-deprecated-java-version=true"
                         timeout(time: 1, unit: 'HOURS') {
                             waitForQualityGate abortPipeline: true
                         }
