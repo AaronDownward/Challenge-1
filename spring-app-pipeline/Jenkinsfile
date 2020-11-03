@@ -21,6 +21,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir("simple-app") {
+                    sh 'ls'
                     sh "mvn package -DskipTests=true -Dcheckstyle.skip=true"
                 }
             }
@@ -44,7 +45,7 @@ pipeline {
         stage('Deploy to Testing') {
             steps {
                 script {
-                    dir("kube-deployments") {
+                    dir("kube-deployments/testing") {
                         sh 'ls'
                         withKubeConfig([credentialsId: 'kubectl-creds', serverUrl: 'https://7B7243814A301887F34329CEF514F6CC.gr7.us-east-2.eks.amazonaws.com']) {
                             sh 'kubectl apply -f kubernetes.yaml'
