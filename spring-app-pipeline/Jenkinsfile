@@ -13,30 +13,24 @@ pipeline {
         }
         stage('Test') {
             steps {
-                dir("simple-app") {
-                    sh "mvn test -Dcheckstyle.skip=true"
-                }
+                sh "mvn test -Dcheckstyle.skip=true"
             }
         }
         stage('Build') {
             steps {
-                dir("simple-app") {
-                    sh 'ls'
-                    sh "mvn package -DskipTests=true -Dcheckstyle.skip=true"
-                }
+                sh 'ls'
+                sh "mvn package -DskipTests=true -Dcheckstyle.skip=true"
             }
         }
 
         stage('Upload Docker Image') {
             steps {
                 script {
-                    dir("simple-app") {
-                        docker.withTool('docker') {
-                            repoId = "aarondownward/simple-app"
-                            image = docker.build(repoId)
-                            docker.withRegistry("https://registry.hub.docker.com", "dockerhub-cred") {
-                                image.push()
-                            }
+                    docker.withTool('docker') {
+                        repoId = "aarondownward/simple-app"
+                        image = docker.build(repoId)
+                        docker.withRegistry("https://registry.hub.docker.com", "dockerhub-cred") {
+                            image.push()
                         }
                     }
                 }
@@ -44,13 +38,11 @@ pipeline {
         }
         stage('Deploy to Testing') {
             steps {
-                dir("kube-deployments/testing") {
-                    withKubeConfig([credentialsId: 'kubectl-creds', serverUrl: 'https://7B7243814A301887F34329CEF514F6CC.gr7.us-east-2.eks.amazonaws.com']) {
-                        sh 'ls'
-                        sh 'kubectl apply -f deployment.yaml'
-                        sh 'kubectl apply -f service.yaml'
-                        sh 'kubectl rollout restart deployment/simple-app -n testing'
-                    }
+                withKubeConfig([credentialsId: 'kubectl-creds', serverUrl: 'https://7B7243814A301887F34329CEF514F6CC.gr7.us-east-2.eks.amazonaws.com']) {
+                    sh 'ls'
+                    sh 'kubectl apply -f kube-deployments/testing/deployment.yaml'
+                    sh 'kubectl apply -f kube-deployments/testing/service.yaml'
+                    sh 'kubectl rollout restart deployment/simple-app -n testing'
                 }
             }
         }
