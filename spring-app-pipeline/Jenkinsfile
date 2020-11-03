@@ -38,7 +38,7 @@ pipeline {
         }
         stage('Deploy to Testing') {
             steps {
-                withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'challenge1', contextName: 'arn:aws:eks:us-east-2:600605617967:cluster/challenge1', credentialsId: 'kubectl-creds', namespace: 'testing', serverUrl: 'https://7B7243814A301887F34329CEF514F6CC.gr7.us-east-2.eks.amazonaws.com']]) {
+                withKubeConfig([credentialsId: 'kubectl-creds', serverUrl: 'https://kubernetes.docker.internal:6443']) {
                     sh 'ls'
                     sh 'kubectl apply -f kube-deployments/testing/deployment.yaml'
                     sh 'kubectl apply -f kube-deployments/testing/service.yaml'
