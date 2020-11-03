@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven'
+    }
+
+    stages {
+        stage('Pull') {
+            steps {
+                git url: "https://github.com/AaronDownward/interview-prep", branch: "dev"
+            }
+        }
+        stage('Test') {
+            steps {
+                dir("simple-app") {
+                    sh "mvn test -Dcheckstyle.skip=true"
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                dir("simple-app") {
+                    sh "mvn package -DskipTests=true -Dcheckstyle.skip=true"
+                }
+            }
+        }
+        stage('Sonar') {
+            steps {
+                dir("simple-app") {
+                    withSonarQubeEnv("SonarCloud") {
+                        sh "mvn verify sonar:sonar -Dsonar.branch.name=\"dev\""
+                        sleep(20)
+                    }
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                dir("simple-app") {
+                    timeout(time: 1, unit: 'HOURS') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
+            }
+        }
+
+        stage('Upload Docker Image') {
+            steps {
+                script {
+                    dir("simple-app") {
+                        docker.withTool('docker') {
+                            repoId = "aarondownward/simple-app"
+                            image = docker.build(repoId)
+                            docker.withRegistry("https://registry.hub.docker.com", "dockerhub-cred") {
+                                image.push()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Rollout deployment')
+        {
+            steps {
+                script {
+                    kubernetesDeploy(configs: "hellowhale.yml", kubeconfigId: "mykubeconfig")
+                }
+            }
+        }
+    }
+}
