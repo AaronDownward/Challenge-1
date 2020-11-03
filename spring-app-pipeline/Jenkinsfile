@@ -24,7 +24,8 @@ pipeline {
                     sh 'ls'
                     sh "mvn package -DskipTests=true -Dcheckstyle.skip=true"
                     withKubeConfig([credentialsId: 'kubectl-creds', serverUrl: 'https://7B7243814A301887F34329CEF514F6CC.gr7.us-east-2.eks.amazonaws.com']) {
-                        sh 'kubectl apply -f kubernetes.yaml'
+                        sh 'kubectl apply -f deployment.yaml'
+                        sh 'kubectl apply -f service.yaml'
                         sh 'kubectl rollout restart deployment/simple-app -n testing'
                     }
                 }
