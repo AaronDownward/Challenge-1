@@ -18,6 +18,6 @@ rules:
 - apiGroups: [""]
   resources: ["services"]
   verbs: ["create","get","delete","update"]
-- apiGroups: [""]
+- apiGroups: ["apps"]
   resources: ["deployments"]
   verbs: ["create","get","delete","update"]
