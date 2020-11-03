@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Pull') {
             steps {
-                git url: "https://github.com/AaronDownward/Challenge-1", branch: "test"
+                git url: "https://github.com/AaronDownward/Challenge-1", branch: ""
             }
         }
         stage('Test') {
@@ -38,7 +38,7 @@ pipeline {
         }
         stage('Deploy to Testing') {
             steps {
-                withKubeConfig([credentialsId: 'kubectl-creds', serverUrl: 'https://kubernetes.docker.internal:6443']) {
+                withKubeConfig([credentialsId: 'kubectl-creds', serverUrl: 'https://7B7243814A301887F34329CEF514F6CC.gr7.us-east-2.eks.amazonaws.com']) {
                     sh 'ls'
                     sh 'kubectl apply -f kube-deployments/testing/deployment.yaml'
                     sh 'kubectl apply -f kube-deployments/testing/service.yaml'
