@@ -20,22 +20,3 @@ spec:
                 image: aarondownward/simple-app
                 imagePullPolicy: Always
             restartPolicy: Always
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-    name: app-service
-    namespace: testing
-spec:
-    type: LoadBalancer
-    selector:
-        app: simple-app
-    ports:
-        - port: 8080
-          name: web-interface
-          targetPort: 8080
-        - port: 50002
-          name: testing
-          targetPort: 50002
